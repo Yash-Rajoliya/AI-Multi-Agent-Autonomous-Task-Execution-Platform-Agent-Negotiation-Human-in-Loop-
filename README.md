@@ -1,2 +1,2 @@
-# AI Multi-Agent Autonomous Task Execution Platform Agent Negotiation Human in Loop
+# AI Multi-Agent Autonomous Task Execution Platform | Agent Negotiation | Human in Loop
 Distributed autonomous agent orchestration platform enabling negotiation-driven task execution, consensus reasoning, and human-in-the-loop governance. Built with LangChain, AutoGen &amp; FastAPI featuring DAG workflows, semantic memory, scalable async execution, evaluation pipelines, RBAC, and production observability.
