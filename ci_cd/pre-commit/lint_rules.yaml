@@ -1,0 +1,19 @@
+black:
+  line-length: 100
+
+isort:
+  profile: black
+
+flake8:
+  max-line-length: 100
+  ignore:
+    - E203
+    - W503
+
+mypy:
+  ignore_missing_imports: true
+  strict_optional: true
+
+bandit:
+  skips:
+    - B101
