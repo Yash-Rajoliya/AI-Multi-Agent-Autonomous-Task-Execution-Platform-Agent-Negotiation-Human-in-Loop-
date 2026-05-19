@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          pip install poetry
+          poetry install
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/unit -v --cov=.
+
+      - name: Run Integration Tests
+        run: |
+          pytest tests/integration -v
+
+      - name: Run E2E Tests
+        run: |
+          pytest tests/e2e -v
