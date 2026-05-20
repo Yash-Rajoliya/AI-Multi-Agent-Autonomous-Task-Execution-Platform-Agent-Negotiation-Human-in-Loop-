@@ -1,34 +1,36 @@
+# Incident Response Runbook
 
-# Incident Response
+Operational guide for diagnosing and resolving platform incidents.
+
+---
 
 ## Severity Levels
 
-- P0: System down
-- P1: Major degradation
-- P2: Minor issue
+| Severity | Description | Example |
+|----------|-------------|---------|
+| P0 | Critical outage | Entire platform unavailable |
+| P1 | Major degradation | Core workflows failing |
+| P2 | Minor issue | Partial feature degradation |
 
 ---
 
-## Steps
+## Incident Response Workflow
 
-1. Identify issue
-2. Check logs
-3. Check metrics
-4. Restart service
-5. Rollback if needed
+1. Identify and classify the issue
+2. Check service health status
+3. Review application logs
+4. Review metrics and traces
+5. Isolate impacted services
+6. Restart or scale affected services
+7. Roll back recent deployments if required
+8. Validate system recovery
+9. Document root cause and resolution
 
 ---
 
-## Common Issues
+## Core Diagnostic Commands
 
-### Redis Down
-- Restart container
-- Check connection
+### Check Containers
 
-### Worker Crash
-- Check logs
-- Restart worker
-
-### High Latency
-- Check LLM calls
-- Enable caching
+```bash
+docker ps
