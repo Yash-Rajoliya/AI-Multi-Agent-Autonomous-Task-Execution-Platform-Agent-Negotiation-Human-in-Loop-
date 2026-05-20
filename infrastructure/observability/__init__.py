@@ -1,5 +1,19 @@
+# infrastructure/observability/__init__.py
+
 """
-Initialization package for observability
+Observability and monitoring infrastructure.
+
+Includes:
+- Distributed tracing
+- Metrics collection
+- Structured logging
+- Alerting systems
+- Operational telemetry
 """
 
-PACKAGE_NAME = "observability"
+__all__ = [
+    "tracing",
+    "metrics",
+    "logging",
+    "alerts",
+]
