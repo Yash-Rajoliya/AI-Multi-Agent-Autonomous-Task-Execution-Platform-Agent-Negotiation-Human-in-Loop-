@@ -1,5 +1,16 @@
+# infrastructure/messaging/consumers/__init__.py
+
 """
-Initialization package for consumers
+Message consumer infrastructure.
+
+Responsible for:
+- Consuming distributed events
+- Processing task queues
+- Handling async workflow messages
+- Event-driven execution triggers
+- Queue subscription management
 """
 
-PACKAGE_NAME = "consumers"
+__all__ = [
+    "task_consumer",
+]

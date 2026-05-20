@@ -1,5 +1,17 @@
+# infrastructure/messaging/__init__.py
+
 """
-Initialization package for messaging
+Messaging and event infrastructure.
+
+Provides:
+- Distributed message bus
+- Event publishing and consumption
+- Queue orchestration
+- Event schema validation
+- Async workflow communication
 """
 
-PACKAGE_NAME = "messaging"
+__all__ = [
+    "message_bus",
+    "event_schema",
+]

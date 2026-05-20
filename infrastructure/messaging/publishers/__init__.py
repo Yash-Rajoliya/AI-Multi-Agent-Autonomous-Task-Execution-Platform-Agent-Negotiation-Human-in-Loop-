@@ -1,5 +1,16 @@
+# infrastructure/messaging/publishers/__init__.py
+
 """
-Initialization package for publishers
+Message publisher infrastructure.
+
+Responsible for:
+- Publishing workflow events
+- Dispatching task messages
+- Emitting orchestration signals
+- Event stream production
+- Queue message delivery
 """
 
-PACKAGE_NAME = "publishers"
+__all__ = [
+    "task_publisher",
+]
