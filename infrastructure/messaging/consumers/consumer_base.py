@@ -1,26 +1,52 @@
 import json
-from typing import Callable
+import logging
+from collections.abc import Callable
+from typing import Any
 
-from confluent_kafka import Consumer, KafkaException
+from confluent_kafka import Consumer, KafkaException, Message
 
+from infrastructure.config.settings import get_settings
 from infrastructure.messaging.message_bus import MessageBus
+
+logger = logging.getLogger(__name__)
+
+settings = get_settings()
 
 
 class BaseConsumer:
+    """Reusable Kafka consumer base class."""
 
-    def __init__(self, topic: str, group_id: str):
+    def __init__(
+        self,
+        topic: str,
+        group_id: str,
+    ) -> None:
         self.topic = topic
 
-        self.consumer = Consumer({
-            "bootstrap.servers": "localhost:9092",
-            "group.id": group_id,
-            "auto.offset.reset": "earliest",
-            "enable.auto.commit": False
-        })
+        self.consumer = Consumer(
+            {
+                "bootstrap.servers": settings.KAFKA_BROKER,
+                "group.id": group_id,
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+            },
+        )
 
         self.consumer.subscribe([topic])
 
-    def start(self, handler: Callable):
+    def start(
+        self,
+        handler: Callable[
+            [dict[str, Any], dict[str, str]],
+            None,
+        ],
+    ) -> None:
+        """Start Kafka consumer polling loop."""
+        logger.info(
+            "Consumer started topic=%s",
+            self.topic,
+        )
+
         while True:
             msg = self.consumer.poll(1.0)
 
@@ -31,11 +57,15 @@ class BaseConsumer:
                 raise KafkaException(msg.error())
 
             try:
-                value = json.loads(msg.value())
-                headers = self._parse_headers(msg.headers())
+                value = json.loads(msg.value().decode("utf-8"))
 
-                # Idempotency check
-                if self._is_duplicate(headers.get("event_id")):
+                headers = self._parse_headers(
+                    msg.headers(),
+                )
+
+                if self._is_duplicate(
+                    headers.get("event_id"),
+                ):
                     self.consumer.commit(msg)
                     continue
 
@@ -43,33 +73,70 @@ class BaseConsumer:
 
                 self.consumer.commit(msg)
 
-            except Exception as e:
-                self._handle_failure(msg, str(e))
+            except Exception as exc:
+                logger.exception(
+                    "Failed processing Kafka message",
+                )
 
-    def _parse_headers(self, headers):
-        return {k: v.decode() for k, v in headers} if headers else {}
+                self._handle_failure(
+                    msg=msg,
+                    error=str(exc),
+                )
 
-    def _is_duplicate(self, event_id: str) -> bool:
-        # TODO: Replace with Redis/DB
+    @staticmethod
+    def _parse_headers(
+        headers: list[tuple[str, bytes]] | None,
+    ) -> dict[str, str]:
+        """Parse Kafka headers."""
+        if not headers:
+            return {}
+
+        return {
+            key: value.decode("utf-8")
+            for key, value in headers
+        }
+
+    @staticmethod
+    def _is_duplicate(event_id: str | None) -> bool:
+        """Placeholder idempotency check."""
+        if not event_id:
+            return False
+
+        # TODO: Replace with Redis or database check
         return False
 
-    def _handle_failure(self, msg, error: str):
-        headers = self._parse_headers(msg.headers())
-        retry_count = int(headers.get("retry_count", 0))
+    def _handle_failure(
+        self,
+        msg: Message,
+        error: str,
+    ) -> None:
+        """Handle retry and DLQ flow."""
+        headers = self._parse_headers(
+            msg.headers(),
+        )
+
+        retry_count = int(
+            headers.get("retry_count", "0"),
+        )
+
+        value = json.loads(
+            msg.value().decode("utf-8"),
+        )
 
         if retry_count < 3:
             MessageBus.publish_retry(
                 topic=self.topic,
-                value=json.loads(msg.value()),
+                value=value,
                 headers=headers,
-                retry_count=retry_count + 1
+                retry_count=retry_count + 1,
             )
+
         else:
             MessageBus.publish_dlq(
                 topic=self.topic,
-                value=json.loads(msg.value()),
+                value=value,
                 headers=headers,
-                error=error
+                error=error,
             )
 
         self.consumer.commit(msg)
