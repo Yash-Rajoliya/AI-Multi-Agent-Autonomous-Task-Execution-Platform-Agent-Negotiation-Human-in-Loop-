@@ -7,4 +7,4 @@ controller = EvaluationController()
 
 @router.post("/run")
 async def run_evaluation(payload: dict):
-    return await controller.run(payload)
+    return await controller.run(payload) 

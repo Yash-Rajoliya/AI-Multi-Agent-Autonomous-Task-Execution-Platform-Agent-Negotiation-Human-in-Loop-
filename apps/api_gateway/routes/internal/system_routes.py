@@ -17,4 +17,4 @@ async def metrics():
     return {
         "requests": "N/A",
         "latency": "N/A"
-    }
+    } 

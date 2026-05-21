@@ -14,4 +14,4 @@ async def create_tenant(request: Request, payload: dict):
 
 @router.get("/{tenant_id}")
 async def get_tenant(tenant_id: str):
-    return await controller.get_tenant(tenant_id)
+    return await controller.get_tenant(tenant_id) 
