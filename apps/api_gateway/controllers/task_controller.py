@@ -1,21 +1,34 @@
-from infrastructure.messaging.message_bus import KafkaBus
-from infrastructure.messaging.event_schema import BaseEvent, EventMetadata
+from uuid import uuid4
+
+from infrastructure.messaging.message_bus import MessageBus
 
 
 class TaskController:
-    def __init__(self, bus: KafkaBus):
-        self.bus = bus
+    """Controller for task management."""
 
-    async def create_task(self, request):
-        event = BaseEvent(
-            metadata=EventMetadata(
-                event_type="task.created",
-                source="api-gateway",
-                trace_id=request.headers.get("x-trace-id", "generated"),
-            ),
-            payload=request.dict(),
+    def __init__(self) -> None:
+        self.bus = MessageBus()
+
+    async def create_task(
+        self,
+        request: dict,
+        trace_id: str | None = None,
+    ) -> dict:
+        event = {
+            "event_id": str(uuid4()),
+            "event_type": "task.created",
+            "source": "api-gateway",
+            "trace_id": trace_id or "generated",
+            "payload": request,
+        }
+
+        self.bus.publish(
+            topic="tasks.created.v1",
+            key=event["event_id"],
+            value=event,
         )
 
-        await self.bus.publish("tasks.created.v1", event)
-
-        return {"status": "accepted"}
+        return {
+            "status": "accepted",
+            "event_id": event["event_id"],
+        }

@@ -1,8 +1,18 @@
+from typing import Any
+
 from pydantic import BaseModel
-from typing import Any, Optional
+
+
+class ErrorResponse(BaseModel):
+    """Standardized API error response."""
+
+    code: str
+    message: str
 
 
 class APIResponse(BaseModel):
+    """Standardized API response wrapper."""
+
     status: str
-    data: Optional[Any]
-    error: Optional[dict]
+    data: Any | None = None
+    error: ErrorResponse | None = None
