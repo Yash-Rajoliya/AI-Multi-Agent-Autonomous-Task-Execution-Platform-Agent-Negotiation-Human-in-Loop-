@@ -1,5 +1,16 @@
+# apps/api-gateway/utils/__init__.py
+
 """
-Initialization package for utils
+API Gateway utility module.
+
+Provides:
+- Exception handling utilities
+- Standardized response builders
+- Shared helper functions
+- API utility abstractions
 """
 
-PACKAGE_NAME = "utils"
+__all__ = [
+    "exception_handler",
+    "response_builder",
+]
