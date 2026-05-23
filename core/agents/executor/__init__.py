@@ -1,5 +1,18 @@
+# core/agents/executor/__init__.py
+
 """
-Initialization package for executor
+Executor agent module.
+
+Responsible for:
+- Action execution
+- Tool invocation
+- Runtime task handling
+- External system interaction
+- Execution optimization
 """
 
-PACKAGE_NAME = "executor"
+__all__ = [
+    "executor_agent",
+    "action_handler",
+    "tool_selector",
+]
