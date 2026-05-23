@@ -1,5 +1,17 @@
+# core/agents/critic/__init__.py
+
 """
-Initialization package for critic
+Critic agent module.
+
+Provides:
+- Output evaluation
+- Quality analysis
+- Failure detection
+- Scoring and validation
+- Execution feedback generation
 """
 
-PACKAGE_NAME = "critic"
+__all__ = [
+    "critic_agent",
+    "evaluation_engine",
+]
