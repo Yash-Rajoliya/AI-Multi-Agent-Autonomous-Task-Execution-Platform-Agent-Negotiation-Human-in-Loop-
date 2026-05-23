@@ -1,5 +1,18 @@
+# core/agents/researcher/__init__.py
+
 """
-Initialization package for researcher
+Researcher agent module.
+
+Provides:
+- Knowledge retrieval
+- Data aggregation
+- Information ranking
+- Source validation
+- Research synthesis
 """
 
-PACKAGE_NAME = "researcher"
+__all__ = [
+    "researcher_agent",
+    "data_processor",
+    "source_ranker",
+]
