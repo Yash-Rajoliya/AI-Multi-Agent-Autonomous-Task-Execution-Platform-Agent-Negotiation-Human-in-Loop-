@@ -1,5 +1,20 @@
+# core/memory/__init__.py
+
 """
-Initialization package for memory
+Cognitive memory framework.
+
+Provides:
+- Working memory systems
+- Episodic memory persistence
+- Semantic memory retrieval
+- Memory routing and management
+- Context-aware retrieval pipelines
 """
 
-PACKAGE_NAME = "memory"
+__all__ = [
+    "episodic_memory",
+    "semantic_memory",
+    "working_memory",
+    "memory_router",
+    "memory_manager",
+]
