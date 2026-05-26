@@ -1,5 +1,20 @@
+# core/tools/__init__.py
+
 """
-Initialization package for tools
+Tool integration framework.
+
+Provides:
+- Tool registration
+- Plugin execution
+- External system integrations
+- Dynamic tool loading
+- Tool capability management
 """
 
-PACKAGE_NAME = "tools"
+__all__ = [
+    "tool_registry",
+    "plugin_system",
+    "web_search",
+    "code_execution",
+    "api_tools",
+]
