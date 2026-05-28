@@ -1,5 +1,15 @@
+# core/tools/api_tools/__init__.py
+
 """
-Initialization package for api_tools
+External API tool integrations.
+
+Provides:
+- API client abstractions
+- Third-party integrations
+- Authenticated API access
+- Service communication utilities
 """
 
-PACKAGE_NAME = "api_tools"
+__all__ = [
+    "api_client",
+]

@@ -1,5 +1,15 @@
+# core/tools/web_search/__init__.py
+
 """
-Initialization package for web_search
+Web search tool integration.
+
+Provides:
+- External web search access
+- Search provider abstraction
+- Result retrieval pipelines
+- Search query orchestration
 """
 
-PACKAGE_NAME = "web_search"
+__all__ = [
+    "search_client",
+]

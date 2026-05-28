@@ -1,5 +1,15 @@
+# core/tools/code_execution/__init__.py
+
 """
-Initialization package for code_execution
+Code execution tool runtime.
+
+Supports:
+- Sandboxed code execution
+- Runtime isolation
+- Dynamic script execution
+- Execution result handling
 """
 
-PACKAGE_NAME = "code_execution"
+__all__ = [
+    "runner",
+]
