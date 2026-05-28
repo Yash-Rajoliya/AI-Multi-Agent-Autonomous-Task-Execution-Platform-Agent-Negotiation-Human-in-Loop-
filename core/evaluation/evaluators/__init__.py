@@ -1,5 +1,15 @@
+# core/evaluation/evaluators/__init__.py
+
 """
-Initialization package for evaluators
+LLM evaluation framework.
+
+Provides:
+- Automated output evaluation
+- Model assessment pipelines
+- Quality scoring systems
+- Comparative evaluation strategies
 """
 
-PACKAGE_NAME = "evaluators"
+__all__ = [
+    "llm_evaluator",
+]

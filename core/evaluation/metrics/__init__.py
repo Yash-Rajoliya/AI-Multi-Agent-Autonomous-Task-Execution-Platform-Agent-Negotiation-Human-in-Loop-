@@ -1,5 +1,17 @@
+# core/evaluation/metrics/__init__.py
+
 """
-Initialization package for metrics
+Evaluation metrics module.
+
+Provides:
+- Accuracy metrics
+- Latency measurements
+- Cost analysis
+- Execution performance indicators
 """
 
-PACKAGE_NAME = "metrics"
+__all__ = [
+    "accuracy",
+    "latency",
+    "cost",
+]

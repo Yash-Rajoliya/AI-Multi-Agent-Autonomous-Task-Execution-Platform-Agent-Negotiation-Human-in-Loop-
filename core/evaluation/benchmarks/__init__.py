@@ -1,5 +1,15 @@
+# core/evaluation/benchmarks/__init__.py
+
 """
-Initialization package for benchmarks
+Benchmarking framework.
+
+Supports:
+- Benchmark suite execution
+- Performance comparisons
+- Agent capability evaluation
+- Workflow benchmarking
 """
 
-PACKAGE_NAME = "benchmarks"
+__all__ = [
+    "benchmark_suite",
+]

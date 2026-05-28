@@ -1,5 +1,18 @@
+# core/evaluation/__init__.py
+
 """
-Initialization package for evaluation
+Evaluation and benchmarking framework.
+
+Responsible for:
+- Workflow evaluation
+- Agent benchmarking
+- Metric computation
+- LLM output assessment
+- Performance analysis
 """
 
-PACKAGE_NAME = "evaluation"
+__all__ = [
+    "metrics",
+    "benchmarks",
+    "evaluators",
+]
