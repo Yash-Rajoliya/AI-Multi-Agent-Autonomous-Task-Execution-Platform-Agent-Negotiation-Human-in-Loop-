@@ -1,5 +1,18 @@
+# core/prompts/__init__.py
+
 """
-Initialization package for prompts
+Prompt engineering framework.
+
+Contains:
+- System prompts
+- Agent prompts
+- Prompt templates
+- Prompt orchestration utilities
+- Reusable prompt abstractions
 """
 
-PACKAGE_NAME = "prompts"
+__all__ = [
+    "system_prompts",
+    "agent_prompts",
+    "prompt_templates",
+]
