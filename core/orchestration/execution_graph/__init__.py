@@ -1,5 +1,19 @@
+
 """
-Initialization package for execution_graph
+Execution graph engine.
+
+Implements:
+- DAG orchestration
+- Node and edge management
+- Parallel task execution
+- Dependency validation
+- Graph execution control
 """
 
-PACKAGE_NAME = "execution_graph"
+__all__ = [
+    "dag",
+    "node",
+    "edge",
+    "graph_executor",
+    "graph_validator",
+]
