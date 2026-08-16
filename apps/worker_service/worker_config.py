@@ -1,21 +1,13 @@
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
 
 
 class WorkerConfig(BaseSettings):
     service_name: str = "worker-service"
 
-    queue_name: str = "task-queue"
-    dead_letter_queue: str = "dlq-task-queue"
-
-    max_retries: int = 5
-    retry_backoff_base: int = 2  # exponential base
-
-    concurrency: int = 5
-    poll_interval: float = 1.0
-
-    enable_idempotency: bool = True
-
-    redis_url: str = Field(default="redis://localhost:6379/0")
+    max_retries: int = 3
+    retry_backoff_seconds: float = 2.0
+    enable_dlq: bool = True
+    dlq_name: str = "dead-letter-queue"
 
     class Config:
         env_file = ".env"
