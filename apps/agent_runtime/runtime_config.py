@@ -1,5 +1,5 @@
-from pydantic import BaseSettings
 from functools import lru_cache
+from pydantic import BaseSettings
 
 
 class RuntimeConfig(BaseSettings):
@@ -9,6 +9,7 @@ class RuntimeConfig(BaseSettings):
 
     SANDBOX_ENABLED: bool = True
     TOOL_TIMEOUT: int = 10
+    SANDBOX_MAX_WORKERS: int = 4
 
     LOG_LEVEL: str = "INFO"
 
