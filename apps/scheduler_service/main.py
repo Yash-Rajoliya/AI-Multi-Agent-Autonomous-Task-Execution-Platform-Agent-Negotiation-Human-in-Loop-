@@ -29,7 +29,7 @@ async def main():
         logger.info("Shutdown signal received")
         stop_event.set()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     loop.add_signal_handler(signal.SIGINT, shutdown)
     loop.add_signal_handler(signal.SIGTERM, shutdown)
 
@@ -38,7 +38,12 @@ async def main():
     await stop_event.wait()
 
     scheduler_task.cancel()
-    logger.info("Scheduler stopped")
+    try:
+        await scheduler_task
+    except asyncio.CancelledError:
+        pass
+
+    logger.info("Scheduler stopped cleanly")
 
 
 if __name__ == "__main__":
