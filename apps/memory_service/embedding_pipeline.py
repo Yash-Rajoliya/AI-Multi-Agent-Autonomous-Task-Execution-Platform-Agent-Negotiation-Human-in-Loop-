@@ -11,8 +11,17 @@ class EmbeddingPipeline:
         self.client = OpenAIClient()
 
     async def embed(self, texts: List[str]) -> List[List[float]]:
-        logger.info("Generating embeddings", count=len(texts))
+        if not texts:
+            logger.warning("Embed called with empty text list")
+            return []
 
-        embeddings = await self.client.get_embeddings(texts)
+        # Sanitize inputs to ensure consistency
+        cleaned_texts = [text.strip() for text in texts if text and text.strip()]
+        if not cleaned_texts:
+            logger.warning("No valid non-empty texts to embed after sanitization")
+            return []
+
+        logger.info("Generating embeddings", count=len(cleaned_texts))
+        embeddings = await self.client.get_embeddings(cleaned_texts)
 
         return embeddings

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from infrastructure.observability.logging import get_logger
 
@@ -21,26 +21,35 @@ async def upsert_memory(
     texts: List[str],
     metadata: List[Dict],
 ):
+    if len(ids) != len(texts) or len(ids) != len(metadata):
+        raise HTTPException(
+            status_code=400,
+            detail="Payload lengths for ids, texts, and metadata must match",
+        )
+
     try:
         vectors = await embedder.embed(texts)
+        if not vectors:
+            raise HTTPException(status_code=400, detail="Failed to compute embeddings for texts")
 
         await index.upsert(ids, vectors, metadata)
+        return {"status": "success", "count": len(ids)}
 
-        return {"status": "success"}
-
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("Upsert failed", error=str(e))
         raise HTTPException(status_code=500, detail="Upsert failed")
 
 
 @router.post("/memory/query")
-async def query_memory(query: str, filters: Dict = None):
+async def query_memory(query: str, filters: Optional[Dict] = None):
+    if not query or not query.strip():
+        raise HTTPException(status_code=400, detail="Query text cannot be empty")
+
     try:
         results = await retriever.retrieve(query, filters)
-
-        return {
-            "results": results
-        }
+        return {"results": results, "count": len(results)}
 
     except Exception as e:
         logger.exception("Query failed", error=str(e))
