@@ -1,131 +1,109 @@
 import json
 import logging
+import time
 import uuid
-from typing import Any
+from typing import Any, Dict, Optional
 
 from confluent_kafka import Producer
 
-from infrastructure.config.settings import get_settings
-
 logger = logging.getLogger(__name__)
 
-settings = get_settings()
+KAFKA_BROKER = "localhost:9092"
 
-producer = Producer(
-    {
-        "bootstrap.servers": settings.KAFKA_BROKER,
-        "enable.idempotence": True,
-        "acks": "all",
-        "retries": 5,
-        "linger.ms": 5,
-        "batch.size": 32768,
-    },
-)
+producer = Producer({
+    "bootstrap.servers": KAFKA_BROKER,
+    "enable.idempotence": True,
+    "acks": "all",
+    "retries": 5,
+    "linger.ms": 5,
+    "batch.size": 32768,
+})
 
 
-def delivery_report(err: Exception | None, msg: Any) -> None:
-    """Kafka delivery callback."""
+def delivery_report(err, msg):
     if err:
-        logger.error("Delivery failed: %s", err)
+        logger.error(f"Delivery failed: {err}")
     else:
-        logger.info(
-            "Delivered message topic=%s partition=%s",
-            msg.topic(),
-            msg.partition(),
-        )
+        logger.info(f"Delivered to {msg.topic()} [{msg.partition()}]")
 
 
 class MessageBus:
-    """Kafka message bus abstraction."""
 
     @staticmethod
+    def _encode_headers(headers: Dict[str, Any]) -> list:
+        encoded = []
+        for k, v in headers.items():
+            encoded_val = v.encode("utf-8") if isinstance(v, str) else str(v).encode("utf-8") if v is not None else b""
+            encoded.append((k, encoded_val))
+        return encoded
+
+    @classmethod
     def publish(
+        cls,
         topic: str,
         key: str,
-        value: dict[str, Any],
-        headers: dict[str, str] | None = None,
-    ) -> None:
-        """Publish message to Kafka topic."""
-        message_headers = headers or {}
+        value: Dict[str, Any],
+        headers: Optional[Dict[str, str]] = None
+    ):
+        headers = headers or {}
+        headers.update({
+            "event_id": headers.get("event_id") or str(uuid.uuid4()),
+            "retry_count": headers.get("retry_count", "0"),
+        })
 
-        message_headers.update(
-            {
-                "event_id": str(uuid.uuid4()),
-                "retry_count": "0",
-            },
-        )
+        encoded_key = key.encode("utf-8") if isinstance(key, str) else key
 
         producer.produce(
             topic=topic,
-            key=key,
+            key=encoded_key,
             value=json.dumps(value),
-            headers=[
-                (k, v.encode("utf-8"))
-                for k, v in message_headers.items()
-            ],
-            on_delivery=delivery_report,
+            headers=cls._encode_headers(headers),
+            on_delivery=delivery_report
         )
-
         producer.poll(0)
 
-    @staticmethod
+    @classmethod
     def publish_retry(
+        cls,
         topic: str,
-        value: dict[str, Any],
-        headers: dict[str, str],
-        retry_count: int,
-    ) -> None:
-        """Publish retry event."""
+        value: Dict[str, Any],
+        headers: Dict[str, str],
+        retry_count: int
+    ):
         delay_topic = f"{topic}.retry.{retry_count}"
+        headers["retry_count"] = str(retry_count)
 
-        retry_headers = headers.copy()
-        retry_headers["retry_count"] = str(retry_count)
+        key = headers.get("event_id")
+        encoded_key = key.encode("utf-8") if isinstance(key, str) else key
 
         producer.produce(
             topic=delay_topic,
-            key=retry_headers.get("event_id"),
+            key=encoded_key,
             value=json.dumps(value),
-            headers=[
-                (k, v.encode("utf-8"))
-                for k, v in retry_headers.items()
-            ],
+            headers=cls._encode_headers(headers),
+            on_delivery=delivery_report
         )
+        producer.flush()
 
-        producer.poll(0)
-
-        logger.warning(
-            "Published retry event topic=%s retry_count=%s",
-            delay_topic,
-            retry_count,
-        )
-
-    @staticmethod
+    @classmethod
     def publish_dlq(
+        cls,
         topic: str,
-        value: dict[str, Any],
-        headers: dict[str, str],
-        error: str,
-    ) -> None:
-        """Publish failed event to DLQ."""
+        value: Dict[str, Any],
+        headers: Dict[str, str],
+        error: str
+    ):
         dlq_topic = f"{topic}.dlq"
+        headers["error"] = error
 
-        dlq_headers = headers.copy()
-        dlq_headers["error"] = error
+        key = headers.get("event_id")
+        encoded_key = key.encode("utf-8") if isinstance(key, str) else key
 
         producer.produce(
             topic=dlq_topic,
-            key=dlq_headers.get("event_id"),
+            key=encoded_key,
             value=json.dumps(value),
-            headers=[
-                (k, v.encode("utf-8"))
-                for k, v in dlq_headers.items()
-            ],
+            headers=cls._encode_headers(headers),
+            on_delivery=delivery_report
         )
-
-        producer.poll(0)
-
-        logger.error(
-            "Published message to DLQ topic=%s error=%s",
-            dlq_topic,
-            error,
-        )
+        producer.flush()
