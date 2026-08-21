@@ -1,0 +1,11 @@
+api:
+  replicaCount: 3
+  image: ai-platform/api:latest
+
+worker:
+  replicaCount: 2
+  image: ai-platform/worker:latest
+
+orchestrator:
+  replicaCount: 2
+  image: ai-platform/orchestrator:latest
