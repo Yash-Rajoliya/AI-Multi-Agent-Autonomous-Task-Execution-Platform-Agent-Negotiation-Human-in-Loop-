@@ -25,4 +25,6 @@ class TenantManager:
         return {"id": tenant_id, "name": name}
 
     async def delete_tenant(self, tenant_id: str):
-        await self.redis.set(f"tenant:{tenant_id}", "")
+        await self.redis.delete(f"tenant:{tenant_id}")
+        await self.redis.delete(f"usage:{tenant_id}")
+        await self.redis.delete(f"quota:{tenant_id}")
